@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TropiSkin - Form Analisis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: #FBF5E9; 
+            color: #1E3A8A; 
+            overflow-x: hidden; 
+        }
+        
+        .bg-cream { 
+            background-color: #FBF5E9;
+        }
+
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231E3A8A'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 1.5rem center; background-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="w-full min-h-screen flex relative">
+        <div class="absolute left-0 top-0 h-full w-1/3 max-w-[400px] z-0 hidden md:block">
+            <img src="images/formAnalisis.png" alt="Shell Decor" class="h-full w-full object-cover object-left mix-blend-multiply opacity-100 pointer-events-none">
+        </div>
+
+        <div class="w-full h-full flex flex-col items-center justify-center md:pl-[25%] px-6 md:pr-12 z-10 py-12">
+            
+            <h2 class="text-4xl font-bold text-center mb-8 text-blue-900">Form <span class="text-blue-500">Analisis</span></h2>
+            
+            <div class="p-10 md:p-12 w-full max-w-3xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-cover bg-center relative" 
+                 style="background-image: url('images/boxForm.png');">
+                 
+                <form id="analysis-form" class="space-y-6 relative z-10">
+                    </form>
+                
+                <div class="mt-12 flex justify-center relative z-10">
+                    <img src="images/submit.png" alt="Submit Form" onclick="submitForm()" class="h-10 md:h-12 cursor-pointer hover:scale-105 hover:drop-shadow-lg transition-all duration-300">
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const metaData = {
+            "feature_classes": {
+                "Jenis_Kulit": ["Berminyak", "Kering", "Kombinasi", "Normal"],
+                "Kondisi_Kulit": ["Berjerawat", "Sensitif", "Tidak ada"],
+                "Paparan_Matahari": ["Rendah", "Sedang", "Tinggi"],
+                "Kelembapan": ["Kering", "Lembap", "Sedang"],
+                "Budget": ["50K-150K", "Above 150K", "Semua", "Under 50K"]
+            }
+        };
+
+        const form = document.getElementById('analysis-form');
+        Object.keys(metaData.feature_classes).forEach(key => {
+            const container = document.createElement('div');
+            container.innerHTML = `
+                <select id="${key}" class="custom-select w-full bg-[#FFFDF9] text-[#1E3A8A] rounded-xl py-4 px-6 focus:ring-2 focus:ring-blue-400 outline-none font-bold border border-blue-100 shadow-md shadow-blue-300/50 transition hover:shadow-lg hover:shadow-blue-400/50 text-sm cursor-pointer">
+                    <option value="" disabled selected>${key.replace('_', ' ')}</option>
+                    ${metaData.feature_classes[key].map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                </select>
+            `;
+            form.appendChild(container);
+        });
+
+        function submitForm() {
+            const formData = {};
+            let isComplete = true;
+
+            Object.keys(metaData.feature_classes).forEach(k => {
+                const val = document.getElementById(k).value;
+                if (!val) isComplete = false;
+                formData[k] = val;
+            });
+
+            if (!isComplete) {
+                alert("Mohon lengkapi semua pilihan!");
+                return;
+            }
+
+            localStorage.setItem('tropiskin_data', JSON.stringify(formData));
+            window.location.href = 'loading.html';
+        }
+    </script>
+</body>
+</html>

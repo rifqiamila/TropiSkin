@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TropiSkin - Loading</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* Hapus warna background bawaan dari body */
+        body { font-family: 'Poppins', sans-serif; color: #1E3A8A; overflow: hidden; }
+        
+        @keyframes progress { 0% { width: 0%; } 100% { width: 100%; } }
+        .progress-fill { animation: progress 2.5s linear forwards; }
+    </style>
+</head>
+<body>
+    
+    <div class="w-full h-screen flex flex-col items-center justify-center relative overflow-hidden bg-cover bg-center" 
+         style="background-image: url('images/loading.png');">
+        
+        <h1 class="text-5xl font-bold text-center mb-8 text-blue-900">Tropi<span class="text-blue-500">Skin</span></h1>
+        <p class="text-xl mb-6 font-medium drop-shadow-md bg-white/50 px-4 py-1 rounded-full backdrop-blur-sm">Menganalisis Data Kulit Anda...</p>
+        
+        <div class="w-80 h-4 bg-white/80 rounded-full overflow-hidden shadow-inner border border-blue-100 backdrop-blur-md">
+            <div class="h-full bg-blue-400 progress-fill"></div>
+        </div>
+        
+    </div>
+
+    <script>
+        // Pindah otomatis setelah 2.5 detik
+        setTimeout(() => {
+            window.location.href = 'hasilAnalisis.html';
+        }, 2500);
+    </script>
+</body>
+</html>

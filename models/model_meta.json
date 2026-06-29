@@ -1,0 +1,47 @@
+{
+  "features": [
+    "Jenis_Kulit",
+    "Kondisi_Kulit",
+    "Paparan_Matahari",
+    "Kelembapan",
+    "Budget"
+  ],
+  "target": "Tekstur",
+  "label_classes": [
+    "Cream",
+    "Gel",
+    "Lotion",
+    "Serum",
+    "Stick"
+  ],
+  "feature_classes": {
+    "Jenis_Kulit": [
+      "Berminyak",
+      "Kering",
+      "Kombinasi",
+      "Normal"
+    ],
+    "Kondisi_Kulit": [
+      "Berjerawat",
+      "Sensitif",
+      "Tidak ada"
+    ],
+    "Paparan_Matahari": [
+      "Rendah",
+      "Sedang",
+      "Tinggi"
+    ],
+    "Kelembapan": [
+      "Kering",
+      "Lembap",
+      "Sedang"
+    ],
+    "Budget": [
+      "50K-150K",
+      "Above 150K",
+      "Semua",
+      "Under 50K"
+    ]
+  },
+  "accuracy": 0.99
+}

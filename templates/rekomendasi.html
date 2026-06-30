@@ -13,38 +13,101 @@
     </style>
 </head>
 <body class="p-12 min-h-screen flex flex-col">
-    <h2 class="text-4xl font-bold text-center mb-16 text-blue-900">Rekomendasi <span class="text-blue-500">Sunscreen</span></h2>
-    
+    <h2 class="text-4xl font-bold text-center mb-4 text-blue-900">Rekomendasi <span class="text-blue-500">Sunscreen</span></h2>
+
+    <p id="keterangan-text" class="text-center text-sm text-blue-400 font-medium mb-12 max-w-lg mx-auto"></p>
+
+    <div id="loading-text" class="text-center text-blue-400 font-medium">Memuat rekomendasi...</div>
+
     <div class="flex flex-wrap gap-8 justify-center items-center" id="product-list"></div>
-    
+
     <div class="mt-16 text-center pb-10">
-        <button onclick="window.location.href='hasilAnalisis.html'" class="text-blue-400 font-bold hover:underline">
+        <button onclick="window.location.href='{{ url_for('hasil') }}'" class="text-blue-400 font-bold hover:underline">
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Hasil
         </button>
     </div>
 
     <script>
-        const products = [
-            { id: 1, name: "Azarine Hydrasoothe Sunscreen Gel", texture: "Gel", price: "Rp 65.000", image: "https://down-id.img.susercontent.com/file/5a563914a87a2a536968ce63d70b55cc" },
-            { id: 2, name: "Skin Aqua UV Moisture Gel", texture: "Gel", price: "Rp 55.000", image: "https://www.rohto.co.id/images/products/skinaqua/uv-moisture-gel.png" },
-            { id: 3, name: "Wardah UV Shield Aqua Fresh", texture: "Lotion", price: "Rp 45.000", image: "https://www.wardahbeauty.com/uploads/product/2021/04/1618210340-uv-shield-aqua-fresh-essence.jpg" }
-        ];
+        // Placeholder gambar generik per tekstur, sama dengan yang dipakai backend
+        // di halaman detail produk, supaya tampilan kartu konsisten dengan detailnya.
+        const gambarPerTekstur = {
+            "Gel": "https://placehold.co/400x400/A7E8F0/1E3A8A?text=Sunscreen+Gel",
+            "Lotion": "https://placehold.co/400x400/BFE3FB/1E3A8A?text=Sunscreen+Lotion",
+            "Cream": "https://placehold.co/400x400/FDE9C8/1E3A8A?text=Sunscreen+Cream",
+            "Serum": "https://placehold.co/400x400/D8E8FF/1E3A8A?text=Sunscreen+Serum",
+            "Stick": "https://placehold.co/400x400/CDEAC0/1E3A8A?text=Sunscreen+Stick",
+        };
 
-        const container = document.getElementById('product-list');
-        container.innerHTML = products.map(p => `
-            <div onclick="goToDetail(${p.id})" class="bg-white rounded-3xl p-6 w-64 h-[350px] shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col items-center group border border-gray-100">
-                <div class="flex-grow flex items-center justify-center p-2 w-full h-40">
-                    <img src="${p.image}" class="max-h-full object-contain group-hover:scale-105 transition duration-300">
+        function renderProducts(produkList) {
+            const container = document.getElementById('product-list');
+            container.innerHTML = produkList.map(p => `
+                <div onclick="goToDetail('${p.Id_Produk}')" class="bg-white rounded-3xl p-6 w-64 h-[350px] shadow-lg hover:shadow-xl transition-all cursor-pointer flex flex-col items-center group border border-gray-100">
+                    <div class="flex-grow flex items-center justify-center p-2 w-full h-40">
+                        <img src="${gambarPerTekstur[p.Tekstur] || ''}" class="max-h-full object-contain group-hover:scale-105 transition duration-300">
+                    </div>
+                    <p class="text-center font-bold text-blue-900 text-base leading-tight mt-4 h-12">${p.Nama}</p>
+                    <p class="text-blue-500 font-semibold text-sm mt-2">${p.Tekstur} • ${p.Harga}</p>
                 </div>
-                <p class="text-center font-bold text-blue-900 text-base leading-tight mt-4 h-12">${p.name}</p>
-                <p class="text-blue-500 font-semibold text-sm mt-2">${p.texture} • ${p.price}</p>
-            </div>
-        `).join('');
-
-        function goToDetail(id) {
-            localStorage.setItem('tropiskin_productId', id);
-            window.location.href = 'detailProduk.html';
+            `).join('');
         }
+
+        function goToDetail(idProduk) {
+            localStorage.setItem('tropiskin_productId', idProduk);
+            window.location.href = "{{ url_for('detail_produk') }}";
+        }
+
+        async function loadRekomendasi() {
+            const resultRaw = localStorage.getItem('tropiskin_result');
+
+            if (!resultRaw) {
+                window.location.href = "{{ url_for('analysis') }}";
+                return;
+            }
+
+            const result = JSON.parse(resultRaw);
+
+            // tekstur & spf_label datang dari hasil /predict sebelumnya,
+            // budget diambil dari input awal yang ikut disimpan di result.input
+            const payload = {
+                tekstur: result.tekstur,
+                spf_label: result.spf_label,
+                budget: result.input.Budget,
+            };
+
+            let response, data;
+            try {
+                response = await fetch("{{ url_for('recommend_api') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+            } catch (err) {
+                document.getElementById('loading-text').innerText = "Gagal terhubung ke server. Periksa koneksi internet Anda.";
+                return;
+            }
+
+            data = await response.json();
+
+            if (!response.ok) {
+                document.getElementById('loading-text').innerText = data.error || "Gagal memuat rekomendasi.";
+                return;
+            }
+
+            document.getElementById('loading-text').classList.add('hidden');
+            document.getElementById('keterangan-text').innerText = data.keterangan;
+
+            if (data.produk.length === 0) {
+                document.getElementById('product-list').innerHTML =
+                    '<p class="text-blue-400 font-medium">Belum ada produk yang cocok ditemukan.</p>';
+                return;
+            }
+
+            // Tampilkan maksimal 3 produk -- tekstur tetap jadi prioritas utama
+            // (sudah dijamin sama oleh backend di semua level fallback)
+            renderProducts(data.produk.slice(0, 3));
+        }
+
+        loadRekomendasi();
     </script>
 </body>
 </html>

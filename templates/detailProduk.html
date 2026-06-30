@@ -10,75 +10,95 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Poppins', sans-serif; background-color: #FBF5E9; color: #1E3A8A; }
-        
-        .card-glass { 
-            background: rgba(255, 255, 255, 0.95); 
-            border-radius: 1.5rem; 
-            box-shadow: 0 12px 35px rgba(125, 211, 252, 0.35), 0 4px 10px rgba(125, 211, 252, 0.2); 
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1.5rem;
+            box-shadow: 0 12px 35px rgba(125, 211, 252, 0.35), 0 4px 10px rgba(125, 211, 252, 0.2);
             border: 1px solid rgba(219, 234, 254, 0.6);
         }
-        
+
         .btn-primary { background: linear-gradient(90deg, #8CD6FC 0%, #63C5F8 100%); box-shadow: 0 4px 15px rgba(99, 197, 248, 0.4); transition: all 0.2s; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 197, 248, 0.6); }
     </style>
 </head>
 <body class="p-10 min-h-screen flex flex-col relative">
-    
-    <button onclick="window.location.href='rekomendasi.html'" class="absolute top-10 left-10 text-blue-900 text-4xl hover:text-blue-700">
+
+    <button onclick="window.location.href='{{ url_for('rekomendasi') }}'" class="absolute top-10 left-10 text-blue-900 text-4xl hover:text-blue-700">
         <i class="fa-solid fa-circle-left"></i>
     </button>
-    <button onclick="window.location.href='index.html'" class="absolute top-10 right-10 w-14 h-14 bg-white rounded-full shadow-md shadow-blue-200/50 flex items-center justify-center text-blue-600 text-xl hover:bg-blue-50 transition border border-gray-100">
+    <button onclick="window.location.href='{{ url_for('home') }}'" class="absolute top-10 right-10 w-14 h-14 bg-white rounded-full shadow-md shadow-blue-200/50 flex items-center justify-center text-blue-600 text-xl hover:bg-blue-50 transition border border-gray-100">
         <i class="fa-solid fa-house"></i>
     </button>
 
     <h2 class="text-4xl font-bold text-center mb-12 text-blue-900 w-full mt-10 md:mt-4">Detail <span class="text-blue-500">Produk</span></h2>
 
-    <div class="flex flex-col md:flex-row gap-12 items-center justify-center max-w-5xl mx-auto w-full">
-        
+    <div id="detail-loading" class="text-center text-blue-400 font-medium">Memuat detail produk...</div>
+
+    <div id="detail-content" class="hidden flex flex-col md:flex-row gap-12 items-center justify-center max-w-5xl mx-auto w-full">
+
         <div class="w-full md:w-2/5 flex justify-center">
             <div class="w-full aspect-[3/4] bg-white rounded-3xl shadow-xl shadow-blue-300/50 flex items-center justify-center p-8 border border-blue-100">
                 <img id="detail-image" src="" class="max-h-full object-contain drop-shadow-md" alt="Product">
             </div>
         </div>
-        
+
         <div class="w-full md:w-3/5 card-glass p-10 flex flex-col items-center">
             <h3 class="font-bold text-3xl text-blue-900 mb-8 text-center w-full" id="detail-name">-</h3>
-            
+
             <div class="flex flex-wrap md:flex-nowrap justify-center gap-4 w-full mb-8">
                 <div class="bg-blue-50 text-blue-700 px-6 py-4 rounded-xl font-bold text-center flex-1 shadow-md shadow-blue-200/50 border border-blue-100" id="detail-texture">-</div>
-                <div class="bg-yellow-50 text-yellow-700 px-6 py-4 rounded-xl font-bold text-center flex-1 shadow-md shadow-yellow-200/50 border border-yellow-100">SPF 50+</div>
+                <div class="bg-yellow-50 text-yellow-700 px-6 py-4 rounded-xl font-bold text-center flex-1 shadow-md shadow-yellow-200/50 border border-yellow-100" id="detail-spf">-</div>
                 <div class="bg-green-50 text-green-700 px-6 py-4 rounded-xl font-bold text-center flex-1 shadow-md shadow-green-200/50 border border-green-100" id="detail-price">-</div>
             </div>
-            
+
             <p class="text-gray-600 mb-10 leading-relaxed text-center text-base" id="detail-desc">-</p>
-            
-            <button class="btn-primary w-2/4 py-3 rounded-full font-bold text-lg text-blue-900 shadow-md">
+
+            <a id="detail-buy-link" href="#" target="_blank" rel="noopener" class="btn-primary w-2/4 py-3 rounded-full font-bold text-lg text-blue-900 shadow-md text-center">
                 Beli Sekarang <i class="fa-solid fa-cart-shopping ml-2"></i>
-            </button>
+            </a>
         </div>
     </div>
 
     <script>
-        const products = [
-            { id: 1, name: "Azarine Hydrasoothe Sunscreen Gel", texture: "Gel", price: "Rp 65.000", image: "https://down-id.img.susercontent.com/file/5a563914a87a2a536968ce63d70b55cc", desc: "Sunscreen bertekstur gel yang dingin dan ringan, cocok untuk kulit berminyak dan berjerawat tanpa whitecast." },
-            { id: 2, name: "Skin Aqua UV Moisture Gel", texture: "Gel", price: "Rp 55.000", image: "https://www.rohto.co.id/images/products/skinaqua/uv-moisture-gel.png", desc: "Memberikan perlindungan ganda terhadap UV-A dan UV-B dengan tekstur gel yang sangat lembut dan cepat meresap." },
-            { id: 3, name: "Wardah UV Shield Aqua Fresh", texture: "Lotion", price: "Rp 45.000", image: "https://www.wardahbeauty.com/uploads/product/2021/04/1618210340-uv-shield-aqua-fresh-essence.jpg", desc: "Formulasi Aqua Fused Technology yang membuat sunscreen terasa segar seperti air dan melindungi dari radikal bebas." }
-        ];
+        async function loadDetailProduk() {
+            const idProduk = localStorage.getItem('tropiskin_productId');
 
-        // Ambil ID dari Local Storage
-        const selectedId = localStorage.getItem('tropiskin_productId');
-        const p = products.find(x => x.id == selectedId);
+            if (!idProduk) {
+                alert("Produk tidak ditemukan!");
+                window.location.href = "{{ url_for('rekomendasi') }}";
+                return;
+            }
 
-        if(p) {
-            document.getElementById('detail-image').src = p.image;
-            document.getElementById('detail-name').innerText = p.name;
-            document.getElementById('detail-texture').innerText = p.texture;
-            document.getElementById('detail-price').innerText = p.price;
-            document.getElementById('detail-desc').innerText = p.desc;
-        } else {
-            alert("Produk tidak ditemukan!");
-            window.location.href = "rekomendasi.html";
+            let response, produk;
+            try {
+                response = await fetch(`/produk/${idProduk}`);
+            } catch (err) {
+                alert("Gagal terhubung ke server. Periksa koneksi internet Anda.");
+                return;
+            }
+
+            if (!response.ok) {
+                alert("Produk tidak ditemukan!");
+                window.location.href = "{{ url_for('rekomendasi') }}";
+                return;
+            }
+
+            produk = await response.json();
+
+            document.getElementById('detail-image').src = produk.Gambar;
+            document.getElementById('detail-name').innerText = produk.Nama;
+            document.getElementById('detail-texture').innerText = produk.Tekstur;
+            document.getElementById('detail-spf').innerText = produk.SPF;
+            document.getElementById('detail-price').innerText = produk.Harga;
+            document.getElementById('detail-desc').innerText = produk.Deskripsi;
+            document.getElementById('detail-buy-link').href = produk.URL;
+
+            document.getElementById('detail-loading').classList.add('hidden');
+            document.getElementById('detail-content').classList.remove('hidden');
         }
+
+        loadDetailProduk();
     </script>
 </body>
 </html>

@@ -9,90 +9,194 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background-color: #FBF5E9; 
-            color: #1E3A8A; 
-            overflow-x: hidden; 
+
+        html, body {
+            height: 100%;
         }
-        
-        .bg-cream { 
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #FBF5E9;
+            color: #1E3A8A;
+            overflow-x: hidden;
+            overflow-y: auto; 
+        }
+
+        .bg-cream {
             background-color: #FBF5E9;
         }
 
         .custom-select {
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231E3A8A'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 1.5rem center; background-size: 1.2rem;
+            background-image: url('{{ url_for("static", filename="images/chevron-down.svg") }}');
+            background-repeat: no-repeat;
+            background-position: right 1.2rem center;
+            background-size: 1rem;
+        }
+
+        .optional-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #83d1e3;
+            background: #e8f8fb;
+            border-radius: 999px;
+            padding: 2px 10px;
+            margin-left: 6px;
+            vertical-align: middle;
         }
     </style>
 </head>
 <body>
-    <div class="w-full min-h-screen flex relative">
-        <div class="absolute left-0 top-0 h-full w-1/3 max-w-[400px] z-0 hidden md:block">
-            <img src="images/formAnalisis.png" alt="Shell Decor" class="h-full w-full object-cover object-left mix-blend-multiply opacity-100 pointer-events-none">
+    <div class="w-full min-h-screen flex">
+
+        <div class="hidden md:block w-1/3 max-w-[400px] flex-shrink-0 h-screen sticky top-0">
+            <img src="{{ url_for('static', filename='images/formAnalisis.png') }}" alt="Shell Decor" class="h-full w-full object-cover object-left mix-blend-multiply pointer-events-none">
         </div>
 
-        <div class="w-full h-full flex flex-col items-center justify-center md:pl-[25%] px-6 md:pr-12 z-10 py-12">
-            
-            <h2 class="text-4xl font-bold text-center mb-8 text-blue-900">Form <span class="text-blue-500">Analisis</span></h2>
-            
-            <div class="p-10 md:p-12 w-full max-w-3xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-cover bg-center relative" 
-                 style="background-image: url('images/boxForm.png');">
-                 
-                <form id="analysis-form" class="space-y-6 relative z-10">
-                    </form>
-                
-                <div class="mt-12 flex justify-center relative z-10">
-                    <img src="images/submit.png" alt="Submit Form" onclick="submitForm()" class="h-10 md:h-12 cursor-pointer hover:scale-105 hover:drop-shadow-lg transition-all duration-300">
+        <div class="flex-1 flex flex-col items-center justify-center px-6 md:px-12 py-8">
+
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-6 text-blue-900">Form <span class="text-blue-500">Analisis</span></h2>
+
+            <div class="p-6 md:p-10 w-full max-w-3xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-cover bg-center relative"
+                 style="background-image: url('{{ url_for('static', filename='images/boxForm.png') }}')">
+
+                <form id="analysis-form" class="space-y-4 relative z-10">
+                    <div id="main-fields" class="space-y-4"></div>
+                    <div id="location-field"></div>
+                    <div id="fitzpatrick-field"></div>
+                </form>
+
+                <div class="mt-8 flex justify-center relative z-10">
+                    <img src="{{ url_for('static', filename='images/submit.png') }}" alt="Submit Form" id="btn-submit" class="h-10 md:h-12 cursor-pointer hover:scale-105 hover:drop-shadow-lg transition-all duration-300">
                 </div>
-                
+
             </div>
         </div>
     </div>
 
     <script>
-        const metaData = {
-            "feature_classes": {
-                "Jenis_Kulit": ["Berminyak", "Kering", "Kombinasi", "Normal"],
-                "Kondisi_Kulit": ["Berjerawat", "Sensitif", "Tidak ada"],
-                "Paparan_Matahari": ["Rendah", "Sedang", "Tinggi"],
-                "Kelembapan": ["Kering", "Lembap", "Sedang"],
-                "Budget": ["50K-150K", "Above 150K", "Semua", "Under 50K"]
+        const mainFeatures = {
+            "Jenis_Kulit": {
+                label: "Jenis Kulit",
+                options: [
+                    { value: "Normal", text: "Normal", desc: "kulit terasa seimbang, tidak terlalu berminyak atau kering" },
+                    { value: "Kering", text: "Kering", desc: "kulit sering terasa kencang, kusam, atau mengelupas" },
+                    { value: "Berminyak", text: "Berminyak", desc: "kulit sering mengkilap, pori-pori terlihat besar" },
+                    { value: "Kombinasi", text: "Kombinasi", desc: "berminyak di T-zone, normal/kering di pipi" }
+                ]
+            },
+            "Kondisi_Kulit": {
+                label: "Kondisi Kulit",
+                options: [
+                    { value: "Tidak ada", text: "Tidak ada", desc: "tidak ada masalah khusus, kulit relatif stabil" },
+                    { value: "Berjerawat", text: "Berjerawat", desc: "mudah berjerawat, sering muncul di wajah" },
+                    { value: "Sensitif", text: "Sensitif", desc: "mudah iritasi, merah, gatal, atau bereaksi terhadap produk" }
+                ]
+            },
+            "Paparan_Matahari": {
+                label: "Paparan Matahari",
+                options: [
+                    { value: "Rendah", text: "Rendah", desc: "kebanyakan di dalam ruangan, < 30 menit per hari" },
+                    { value: "Sedang", text: "Sedang", desc: "sesekali di luar ruangan, 30 menit - 2 jam per hari" },
+                    { value: "Tinggi", text: "Tinggi", desc: "sering terpapar matahari langsung, > 2 jam per hari" }
+                ]
+            },
+            "Kelembapan": {
+                label: "Kelembapan",
+                options: [
+                    { value: "Kering", text: "Kering", desc: "udara gersang, jarang hujan, tidak mudah berkeringat" },
+                    { value: "Sedang", text: "Sedang", desc: "cuaca cukup nyaman, tidak terlalu lembap maupun kering" },
+                    { value: "Lembap", text: "Lembap", desc: "udara pengap, mudah berkeringat, sering hujan" }
+                ]
+            },
+            "Budget": {
+                label: "Budget Sunscreen",
+                options: [
+                    { value: "Under 50K", text: "Di bawah Rp50.000", desc: "" },
+                    { value: "50K-150K", text: "Rp50.000 - Rp150.000", desc: "" },
+                    { value: "Above 150K", text: "Di atas Rp150.000", desc: "" },
+                    { value: "Semua", text: "Belum pernah beli", desc: "tidak ada preferensi harga tertentu" }
+                ]
             }
         };
 
-        const form = document.getElementById('analysis-form');
-        Object.keys(metaData.feature_classes).forEach(key => {
-            const container = document.createElement('div');
-            container.innerHTML = `
-                <select id="${key}" class="custom-select w-full bg-[#FFFDF9] text-[#1E3A8A] rounded-xl py-4 px-6 focus:ring-2 focus:ring-blue-400 outline-none font-bold border border-blue-100 shadow-md shadow-blue-300/50 transition hover:shadow-lg hover:shadow-blue-400/50 text-sm cursor-pointer">
-                    <option value="" disabled selected>${key.replace('_', ' ')}</option>
-                    ${metaData.feature_classes[key].map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+        const provinsiList = [
+            "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau",
+            "Jambi", "Sumatera Selatan", "Bengkulu", "Lampung", "Bangka Belitung",
+            "DKI Jakarta", "Jawa Barat", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur",
+            "Banten", "Bali", "Nusa Tenggara Barat", "Nusa Tenggara Timur",
+            "Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara",
+            "Sulawesi Utara", "Sulawesi Tengah", "Sulawesi Selatan", "Sulawesi Tenggara", "Gorontalo", "Sulawesi Barat",
+            "Maluku", "Maluku Utara", "Papua", "Papua Barat", "Papua Tengah", "Papua Pegunungan", "Papua Selatan", "Papua Barat Daya"
+        ];
+
+        const fitzpatrickOptions = [
+            { value: "Fair", text: "Fair (I–II)", desc: "sangat putih / cerah" },
+            { value: "Medium", text: "Medium (III–IV)", desc: "putih kekuningan - cokelat muda" },
+            { value: "Dark", text: "Dark (V–VI)", desc: "cokelat gelap - hitam" }
+        ];
+
+        function buildSelect(id, options, placeholder, required) {
+            const opts = options.map(o => {
+                const label = o.desc ? `${o.text} — ${o.desc}` : o.text;
+                return `<option value="${o.value}">${label}</option>`;
+            }).join('');
+            
+            return `
+                <select id="${id}" ${required ? 'required' : ''}
+                    class="custom-select w-full bg-[#FFFDF9] text-[#1E3A8A] rounded-xl py-3 px-5 focus:ring-2 focus:ring-blue-400 outline-none font-bold border border-blue-100 shadow-md shadow-blue-300/50 transition hover:shadow-lg hover:shadow-blue-400/50 text-sm cursor-pointer">
+                    <option value="" ${required ? 'disabled' : ''} selected>${placeholder}</option>
+                    ${opts}
                 </select>
             `;
-            form.appendChild(container);
+        }
+
+        const mainFieldsContainer = document.getElementById('main-fields');
+        Object.keys(mainFeatures).forEach(key => {
+            const f = mainFeatures[key];
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = buildSelect(key, f.options, f.label, true);
+            mainFieldsContainer.appendChild(wrapper);
         });
 
+        document.getElementById('location-field').innerHTML =
+            buildSelect('Lokasi', provinsiList.map(p => ({ value: p, text: p, desc: '' })), "Lokasi", true);
+
+        document.getElementById('fitzpatrick-field').innerHTML =
+            buildSelect('Fitzpatrick', fitzpatrickOptions, "Tipe Kulit Fitzpatrick (Opsional)", false);
+
         function submitForm() {
-            const formData = {};
+            const mainData = {};
             let isComplete = true;
 
-            Object.keys(metaData.feature_classes).forEach(k => {
+            Object.keys(mainFeatures).forEach(k => {
                 const val = document.getElementById(k).value;
                 if (!val) isComplete = false;
-                formData[k] = val;
+                mainData[k] = val;
             });
 
+            const lokasi = document.getElementById('Lokasi').value;
+            if (!lokasi) isComplete = false;
+
             if (!isComplete) {
-                alert("Mohon lengkapi semua pilihan!");
+                alert("Mohon lengkapi semua pilihan yang wajib diisi!");
                 return;
             }
 
-            localStorage.setItem('tropiskin_data', JSON.stringify(formData));
-            window.location.href = 'loading.html';
+            const fitzpatrickVal = document.getElementById('Fitzpatrick').value || "Medium";
+
+            localStorage.setItem('tropiskin_main_features', JSON.stringify(mainData));
+
+            localStorage.setItem('tropiskin_extra_info', JSON.stringify({
+                Lokasi: lokasi,
+                Fitzpatrick: fitzpatrickVal
+            }));
+
+            window.location.href = "{{ url_for('loading') }}";
         }
+
+        document.getElementById('btn-submit').addEventListener('click', submitForm);
     </script>
 </body>
 </html>

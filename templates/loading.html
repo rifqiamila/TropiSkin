@@ -8,33 +8,118 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        /* Hapus warna background bawaan dari body */
-        body { font-family: 'Poppins', sans-serif; color: #1E3A8A; overflow: hidden; }
-        
-        @keyframes progress { 0% { width: 0%; } 100% { width: 100%; } }
-        .progress-fill { animation: progress 2.5s linear forwards; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #1E3A8A;
+            overflow: hidden;
+        }
+
+        .bg-loading {
+            background-image: url('{{ url_for("static", filename="images/loading.png") }}');
+        }
+
+        /* Progress bar tidak lagi dipatok ke durasi tetap (dulu 2.5s linear),
+           melainkan diisi manual lewat JS mengikuti tahap fetch yang sedang berjalan. */
+        .progress-fill {
+            transition: width 0.4s ease;
+            width: 0%;
+        }
     </style>
 </head>
 <body>
-    
-    <div class="w-full h-screen flex flex-col items-center justify-center relative overflow-hidden bg-cover bg-center" 
-         style="background-image: url('images/loading.png');">
-        
+
+    <div class="w-full h-screen flex flex-col items-center justify-center relative overflow-hidden bg-cover bg-center bg-loading">
+
         <h1 class="text-5xl font-bold text-center mb-8 text-blue-900">Tropi<span class="text-blue-500">Skin</span></h1>
-        <p class="text-xl mb-6 font-medium drop-shadow-md bg-white/50 px-4 py-1 rounded-full backdrop-blur-sm">Menganalisis Data Kulit Anda...</p>
-        
+        <p id="loading-text" class="text-xl mb-6 font-medium drop-shadow-md bg-white/50 px-4 py-1 rounded-full backdrop-blur-sm">
+            Menganalisis Data Kulit Anda...
+        </p>
+
         <div class="w-80 h-4 bg-white/80 rounded-full overflow-hidden shadow-inner border border-blue-100 backdrop-blur-md">
-            <div class="h-full bg-blue-400 progress-fill"></div>
+            <div id="progress-bar" class="h-full bg-blue-400 progress-fill"></div>
         </div>
-        
+
+        <!-- Tampil hanya kalau terjadi error, supaya user tidak macet di loading tanpa info -->
+        <div id="error-box" class="hidden mt-8 max-w-sm text-center bg-red-50 border border-red-200 rounded-2xl px-6 py-4">
+            <p id="error-text" class="text-red-600 text-sm font-medium mb-3"></p>
+            <button id="btn-retry" class="bg-blue-400 text-white font-bold text-sm px-5 py-2 rounded-full hover:bg-blue-500 transition">
+                Coba Lagi
+            </button>
+        </div>
+
     </div>
 
     <script>
-        // Pindah otomatis setelah 2.5 detik
-        setTimeout(() => {
-            window.location.href = 'hasilAnalisis.html';
-        }, 2500);
+        function setProgress(percent, text) {
+            document.getElementById('progress-bar').style.width = percent + '%';
+            if (text) document.getElementById('loading-text').innerText = text;
+        }
+
+        function showError(message) {
+            setProgress(100);
+            document.getElementById('loading-text').innerText = "Analisis gagal";
+            document.getElementById('error-box').classList.remove('hidden');
+            document.getElementById('error-text').innerText = message;
+        }
+
+        async function runAnalysis() {
+            document.getElementById('error-box').classList.add('hidden');
+            setProgress(10, "Mengambil data formulir...");
+
+            const mainFeaturesRaw = localStorage.getItem('tropiskin_main_features');
+            const extraInfoRaw = localStorage.getItem('tropiskin_extra_info');
+
+            if (!mainFeaturesRaw || !extraInfoRaw) {
+                window.location.href = "{{ url_for('analysis') }}";
+                return;
+            }
+
+            const mainFeatures = JSON.parse(mainFeaturesRaw);
+            const extraInfo = JSON.parse(extraInfoRaw);
+            const payload = { ...mainFeatures, ...extraInfo };
+
+            setProgress(35, "Mengecek kondisi UV di lokasimu...");
+
+            let response, resultData;
+            try {
+                response = await fetch("{{ url_for('predict_api') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                showError("Gagal terhubung ke server. Periksa koneksi internet Anda.");
+                return;
+            }
+
+            setProgress(75, "Memproses hasil analisis...");
+
+            try {
+                resultData = await response.json();
+            } catch (err) {
+                showError("Respons server tidak valid. Silakan coba lagi.");
+                return;
+            }
+
+            if (!response.ok) {
+                showError(resultData.error || "Terjadi kesalahan saat memproses analisis.");
+                return;
+            }
+
+            setProgress(100, "Analisis selesai!");
+
+            // Simpan hasil supaya bisa langsung dibaca oleh hasilAnalisis.html dan rekomendasi.html
+            localStorage.setItem('tropiskin_result', JSON.stringify(resultData));
+
+            setTimeout(() => {
+                window.location.href = "{{ url_for('hasil') }}";
+            }, 400);
+        }
+
+        document.getElementById('btn-retry').addEventListener('click', runAnalysis);
+
+        runAnalysis();
     </script>
 </body>
 </html>

@@ -43,5 +43,10 @@
       "Under 50K"
     ]
   },
-  "accuracy": 0.99
+  "accuracy": 0.94,
+  "accuracy_real_survey": 0.9286,
+  "survey_rows_total": 56,
+  "survey_rows_encoded_ok": 56,
+  "survey_rows_failed": 0,
+  "survey_budget_forced_semua": false
 }

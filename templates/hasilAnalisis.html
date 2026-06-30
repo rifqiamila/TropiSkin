@@ -8,101 +8,146 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            color: #1E3A8A; 
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: #1E3A8A;
         }
-        
-        .card-glass { 
-            background: rgba(255, 255, 255, 0.95); 
-            border-radius: 1.5rem;
-            box-shadow: 0 12px 35px rgba(125, 211, 252, 0.35), 0 4px 10px rgba(125, 211, 252, 0.2); 
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 30px rgba(125, 211, 252, 0.3), 0 4px 10px rgba(125, 211, 252, 0.15);
             border: 1px solid rgba(219, 234, 254, 0.6);
         }
-        
-        .btn-primary { 
-            background: linear-gradient(90deg, #8CD6FC 0%, #63C5F8 100%); 
-            box-shadow: 0 4px 15px rgba(99, 197, 248, 0.4); 
-            transition: all 0.2s; 
+
+        .btn-primary {
+            background: linear-gradient(90deg, #8CD6FC 0%, #63C5F8 100%);
+            box-shadow: 0 4px 15px rgba(99, 197, 248, 0.4);
+            transition: all 0.2s;
         }
-        .btn-primary:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 6px 20px rgba(99, 197, 248, 0.6); 
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 197, 248, 0.6);
         }
     </style>
 </head>
-<body class="p-10 min-h-screen flex flex-col bg-cover bg-center bg-fixed" style="background-image: url('images/boxAnalisis.png');">
-    
-    <h2 class="text-4xl font-bold text-center mb-10 text-blue-900 drop-shadow-sm bg-white/40 backdrop-blur-sm py-2 px-6 rounded-full mx-auto w-max">
+<body class="p-6 md:p-8 h-screen overflow-hidden flex flex-col bg-cover bg-center bg-fixed" style="background-image: url('{{ url_for('static', filename='images/boxAnalisis.png') }}');">
+
+    <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 text-blue-900 drop-shadow-sm bg-white/40 backdrop-blur-sm py-1.5 px-6 rounded-full mx-auto w-max">
         Hasil <span class="text-blue-500">Analisis</span>
     </h2>
-    
-    <div class="flex flex-col lg:flex-row gap-8 max-w-5xl mx-auto w-full flex-grow relative z-10">
-        <!-- Ringkasan Data -->
-        <div class="card-glass p-8 flex-1">
-            <h3 class="font-bold text-2xl mb-6 text-blue-900 text-center">Ringkasan Data</h3>
-            <ul id="summary-list" class="space-y-4"></ul>
+
+    <div id="loading-state" class="text-center text-blue-900 font-semibold text-lg flex-grow flex items-center justify-center">
+        Memuat hasil analisis...
+    </div>
+
+    <div id="result-state" class="hidden flex flex-col lg:flex-row gap-5 w-[85vw] max-w-[95%] mx-auto flex-grow relative z-10 min-h-0">
+        
+        <div class="card-glass p-5 md:p-6 flex-1 flex flex-col min-h-0">
+            <h3 class="font-bold text-xl md:text-2xl mb-4 text-blue-900 text-center flex-shrink-0">Ringkasan Data</h3>
+            <ul id="summary-list" class="space-y-2.5 overflow-y-auto pr-1 pb-1 flex-grow"></ul>
         </div>
 
-        <!-- Hasil & Alasan -->
-        <div class="flex-1 flex flex-col gap-6">
-            <div class="flex gap-6">
-                <!-- Box Tekstur -->
-                <div class="card-glass p-6 flex-1 text-center flex flex-col justify-center">
-                    <h4 class="font-semibold text-gray-500 mb-2 uppercase text-xs tracking-wider">Tekstur Sunscreen</h4>
-                    <div class="bg-blue-100 rounded-full py-2 px-6 mx-auto inline-block font-bold text-blue-900 text-lg shadow-sm" id="result-texture">-</div>
+        <div class="flex-1 flex flex-col gap-4 min-h-0">
+            <div class="flex gap-4">
+                <div class="card-glass p-4 flex-1 text-center flex flex-col justify-center">
+                    <h4 class="font-semibold text-gray-500 mb-1.5 uppercase text-[10px] md:text-xs tracking-wider">Tekstur Sunscreen</h4>
+                    <div class="bg-blue-100 rounded-full py-1.5 px-6 mx-auto inline-block font-bold text-blue-900 text-base md:text-lg shadow-sm" id="result-texture">-</div>
                 </div>
-                <!-- Box SPF -->
-                <div class="card-glass p-6 flex-1 text-center flex flex-col justify-center">
-                    <h4 class="font-semibold text-gray-500 mb-2 uppercase text-xs tracking-wider">SPF Rekomendasi</h4>
-                    <div class="bg-blue-100 rounded-full py-2 px-6 mx-auto inline-block font-bold text-blue-900 text-lg shadow-sm">SPF 50+</div>
+                <div class="card-glass p-4 flex-1 text-center flex flex-col justify-center">
+                    <h4 class="font-semibold text-gray-500 mb-1.5 uppercase text-[10px] md:text-xs tracking-wider">SPF Rekomendasi</h4>
+                    <div class="bg-blue-100 rounded-full py-1.5 px-6 mx-auto inline-block font-bold text-blue-900 text-base md:text-lg shadow-sm" id="result-spf">-</div>
                 </div>
             </div>
 
-            <!-- Box Mengapa -->
-            <div class="card-glass p-8 flex-grow">
-                <h4 class="font-bold text-blue-900 text-lg mb-4">Mengapa Saya Mendapatkan Hasil Ini?</h4>
-                <p class="text-gray-600 leading-relaxed text-sm">
-                    Berdasarkan data yang diinput, model AI kami menyarankan tekstur <span id="reason-texture" class="font-bold text-blue-500"></span>. Tekstur ini paling nyaman untuk kondisi cuaca tropis yang Anda hadapi dan tidak menyumbat pori-pori.
-                </p>
+            <div class="card-glass p-5 md:p-6 flex-grow flex flex-col min-h-0 overflow-y-auto">
+                <h4 class="font-bold text-blue-900 text-base md:text-lg mb-2 md:mb-3 flex-shrink-0">Mengapa Saya Mendapatkan Hasil Ini?</h4>
+                <p class="text-gray-600 leading-relaxed text-[13px]" id="reason-texture-text"></p>
+                <p class="text-gray-600 leading-relaxed text-[13px] mt-3" id="reason-spf-text"></p>
             </div>
         </div>
     </div>
 
-    <!-- Tombol Lihat Rekomendasi -->
-    <div class="mt-8 pb-8 flex justify-center w-full relative z-10">
-        <button onclick="window.location.href='rekomendasi.html'" class="btn-primary text-blue-900 font-bold py-2 px-6 rounded-full text-lg shadow-md">
+    <div id="cta-section" class="hidden mt-4 pb-2 flex justify-center w-full relative z-10 flex-shrink-0">
+        <button id="btn-rekomendasi" class="btn-primary text-blue-900 font-bold py-2.5 px-8 rounded-full text-base md:text-lg shadow-md">
             Lihat Rekomendasi Produk
         </button>
     </div>
 
     <script>
-        // Tarik data dari local storage
-        const savedData = localStorage.getItem('tropiskin_data');
-        if(savedData) {
-            const formData = JSON.parse(savedData);
-            
-            // Mockup logika AI
-            const resTexture = formData.Jenis_Kulit === "Berminyak" ? "Gel" : "Lotion";
-            
-            // Tampilkan Ringkasan
+        // Keterangan tiap tekstur untuk box "Mengapa Saya Mendapatkan Hasil Ini?"
+        const TEKSTUR_INFO = {
+            "Gel": "Tekstur gel bersifat ringan, bening, dan cepat meresap tanpa meninggalkan rasa lengket. Cocok untuk kulit berminyak atau yang sering beraktivitas di luar ruangan, karena tidak menyumbat pori-pori dan terasa segar di cuaca tropis yang lembap.",
+            "Lotion": "Tekstur lotion cair-ringan dan mudah diratakan ke seluruh wajah maupun tubuh. Cocok untuk pemakaian harian karena tidak terlalu berat, memberi kelembapan secukupnya tanpa membuat kulit terasa berminyak berlebih.",
+            "Cream": "Tekstur cream lebih kental dan melembapkan dibanding lotion atau gel. Cocok untuk kulit kering atau normal yang membutuhkan perlindungan sekaligus nutrisi ekstra, meski sedikit lebih berat saat diaplikasikan.",
+            "Stick": "Tekstur stick berbentuk padat seperti lipstik, praktis dibawa kemana saja dan ideal untuk touch-up cepat di area wajah, terutama sekitar mata atau bagian tubuh yang sering terlewat saat reapply sunscreen.",
+            "Serum": "Tekstur serum/essence paling ringan dan cepat meresap seperti air. Cocok untuk kulit berjerawat atau sensitif yang butuh perlindungan matahari tanpa menambah beban pada kulit."
+        };
+
+        // Keterangan tiap tier SPF untuk box yang sama
+        const SPF_INFO = {
+            "30": "Berdasarkan intensitas paparan matahari dan kondisi UV index di lokasimu saat ini, SPF 30 sudah cukup memberikan perlindungan harian terhadap sinar UV.",
+            "30-50": "Karena durasi paparan matahari yang cukup lama dikombinasikan dengan kondisi UV di lokasimu, disarankan memakai sunscreen dengan SPF di atas 30 hingga 50 agar perlindungan lebih optimal.",
+            "50+": "Kondisi UV index di lokasimu tergolong sangat tinggi/ekstrem, atau jenis kulitmu lebih rentan terhadap sinar matahari, sehingga disarankan memakai sunscreen dengan SPF 50+ untuk perlindungan maksimal."
+        };
+
+        const LABEL_FIELD = {
+            Jenis_Kulit: "Jenis Kulit",
+            Kondisi_Kulit: "Kondisi Kulit",
+            Paparan_Matahari: "Paparan Matahari",
+            Kelembapan: "Kelembapan",
+            Budget: "Budget",
+            Lokasi: "Lokasi",
+            Fitzpatrick: "Tipe Kulit Fitzpatrick"
+        };
+
+        async function loadResult() {
+            const resultRaw = localStorage.getItem('tropiskin_result');
+
+            if (!resultRaw) {
+                alert("Tidak ada data analisis. Silakan isi form terlebih dahulu.");
+                window.location.href = "{{ url_for('analysis') }}";
+                return;
+            }
+
+            const resultData = JSON.parse(resultRaw);
+            renderResult(resultData);
+        }
+
+        function renderResult(resultData) {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('result-state').classList.remove('hidden');
+            document.getElementById('cta-section').classList.remove('hidden');
+
+            // Ringkasan data input
             const list = document.getElementById('summary-list');
-            list.innerHTML = Object.entries(formData).map(([k, v]) => `
-                <li class="flex justify-between bg-[#FDF9F1] py-3 px-6 rounded-full border border-blue-50 shadow-sm">
-                    <span class="text-gray-500 font-medium text-sm">${k.replace('_', ' ')}</span>
-                    <span class="font-bold text-blue-900 text-sm">${v}</span>
+            list.innerHTML = Object.entries(resultData.input).map(([k, v]) => `
+                <li class="flex justify-between items-center bg-blue-50 py-2 px-5 rounded-full border border-blue-100 shadow-sm">
+                    <span class="text-blue-800 font-medium text-[13px] md:text-sm">${LABEL_FIELD[k] || k}</span>
+                    <span class="font-bold text-blue-900 text-[13px] md:text-sm text-right max-w-[50%] truncate" title="${v}">${v}</span>
                 </li>
             `).join('');
 
-            // Update UI Tekstur
-            document.getElementById('result-texture').innerText = resTexture;
-            document.getElementById('reason-texture').innerText = resTexture;
-        } else {
-            // Jika tidak ada data, kembalikan ke form
-            alert("Tidak ada data analisis. Silakan isi form terlebih dahulu.");
-            window.location.href = "formAnalisis.html";
+            const tekstur = resultData.tekstur;
+            const spfLabel = resultData.spf_label;
+
+            document.getElementById('result-texture').innerText = tekstur;
+            document.getElementById('result-spf').innerText = "SPF " + spfLabel;
+
+            document.getElementById('reason-texture-text').innerHTML =
+                `<span class="font-bold text-blue-500">${tekstur}</span> — ` +
+                (TEKSTUR_INFO[tekstur] || "Tekstur ini dipilih berdasarkan profil kulit yang kamu masukkan.");
+
+            document.getElementById('reason-spf-text').innerText =
+                SPF_INFO[spfLabel] || "SPF ini ditentukan berdasarkan intensitas paparan matahari dan kondisi UV di lokasimu.";
         }
+
+        document.getElementById('btn-rekomendasi').addEventListener('click', function () {
+            window.location.href = "{{ url_for('rekomendasi') }}";
+        });
+
+        loadResult();
     </script>
 </body>
 </html>

@@ -8,5 +8,3 @@ venv/
 
 .idea/
 .vscode/
-
-*.pkl

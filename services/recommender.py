@@ -79,11 +79,11 @@ DESKRIPSI_PER_TEKSTUR = {
 # tidak menyimpan URL gambar). Memakai layanan placeholder berbasis teks
 # supaya tetap menampilkan sesuatu yang relevan secara visual di halaman detail.
 GAMBAR_PLACEHOLDER_PER_TEKSTUR = {
-    "Gel": "https://placehold.co/600x800/A7E8F0/1E3A8A?text=Sunscreen+Gel",
-    "Lotion": "https://placehold.co/600x800/BFE3FB/1E3A8A?text=Sunscreen+Lotion",
-    "Cream": "https://placehold.co/600x800/FDE9C8/1E3A8A?text=Sunscreen+Cream",
-    "Serum": "https://placehold.co/600x800/D8E8FF/1E3A8A?text=Sunscreen+Serum",
-    "Stick": "https://placehold.co/600x800/CDEAC0/1E3A8A?text=Sunscreen+Stick",
+    "Gel": "/static/images/sunscreen.png",
+    "Lotion": "/static/images/sunscreen.png",
+    "Cream": "/static/images/sunscreen.png",
+    "Serum": "/static/images/sunscreen.png",
+    "Stick": "/static/images/sunscreen.png",
 }
 
 DEFAULT_DESKRIPSI = "Sunscreen yang membantu melindungi kulit dari paparan sinar UV harian."

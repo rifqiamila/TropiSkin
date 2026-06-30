@@ -15,7 +15,7 @@
 <body class="p-12 min-h-screen flex flex-col">
     <h2 class="text-4xl font-bold text-center mb-4 text-blue-900">Rekomendasi <span class="text-blue-500">Sunscreen</span></h2>
 
-    <p id="keterangan-text" class="text-center text-sm text-blue-400 font-medium mb-12 max-w-lg mx-auto"></p>
+    <p id="keterangan-text" class="text-center text-sm text-blue-400 font-medium mb-12 mx-auto whitespace-nowrap"></p>
 
     <div id="loading-text" class="text-center text-blue-400 font-medium">Memuat rekomendasi...</div>
 
@@ -31,11 +31,11 @@
         // Placeholder gambar generik per tekstur, sama dengan yang dipakai backend
         // di halaman detail produk, supaya tampilan kartu konsisten dengan detailnya.
         const gambarPerTekstur = {
-            "Gel": "https://placehold.co/400x400/A7E8F0/1E3A8A?text=Sunscreen+Gel",
-            "Lotion": "https://placehold.co/400x400/BFE3FB/1E3A8A?text=Sunscreen+Lotion",
-            "Cream": "https://placehold.co/400x400/FDE9C8/1E3A8A?text=Sunscreen+Cream",
-            "Serum": "https://placehold.co/400x400/D8E8FF/1E3A8A?text=Sunscreen+Serum",
-            "Stick": "https://placehold.co/400x400/CDEAC0/1E3A8A?text=Sunscreen+Stick",
+            "Gel": "/static/images/sunscreen.png",
+            "Lotion": "/static/images/sunscreen.png",
+            "Cream": "/static/images/sunscreen.png",
+            "Serum": "/static/images/sunscreen.png",
+            "Stick": "/static/images/sunscreen.png",
         };
 
         function renderProducts(produkList) {
@@ -102,7 +102,7 @@
                 return;
             }
 
-            // Tampilkan maksimal 3 produk -- tekstur tetap jadi prioritas utama
+            // Tampilkan maksimal 3 produk, tekstur tetap jadi prioritas utama
             // (sudah dijamin sama oleh backend di semua level fallback)
             renderProducts(data.produk.slice(0, 3));
         }
